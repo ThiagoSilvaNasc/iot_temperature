@@ -1,0 +1,28 @@
+name: Deploy Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main  # 🚀 Ou a branch que você usa para deploy
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  # 🔹 Versão recomendada do Node.js
+
+      - name: Instalar dependências
+        run: npm install  # 🔹 Instala todas as dependências, incluindo o Vite
+
+      - name: Fazer o build do projeto
+        run: npm run build  # 🔹 Agora o build deve funcionar corretamente
+
+      - name: Deploy no Firebase Hosting
+        run: firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}"
