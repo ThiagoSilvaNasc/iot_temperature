@@ -1,4 +1,4 @@
-name: Deploy to Firebase Hosting on merge
+name: Deploy Firebase Hosting
 
 on:
   push:
@@ -18,16 +18,18 @@ jobs:
           node-version: 18
 
       - name: Instalar dependências
-        run: npm ci
+        run: npm install
 
-      - name: Fazer o build do projeto
+      - name: Fazer build do projeto
         run: npm run build
 
-      - name: Instalar Firebase CLI
-        run: npm install -g firebase-tools
-
-      - name: Autenticar no Firebase
+      - name: Criar credencial Firebase
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}" > firebase-service-account.json
 
-      - name: Deploy no Firebase Hosting
-        run: firebase deploy --only hosting --project esp32-309d2 --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}"
+      - name: Deploy no Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}
+          channelId: live
+          projectId: esp32-309d2
