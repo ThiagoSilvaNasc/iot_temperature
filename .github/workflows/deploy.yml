@@ -1,30 +1,34 @@
-name: Deploy to Firebase
+name: Deploy Firebase
 
 on:
   push:
     branches:
-      - main
+      - main  # Altere para a branch correta do seu projeto
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20  # Certifique-se de que a versão correta do Node está definida
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+      - name: Instalar dependências
+        run: npm install
 
-      - name: Authenticate with Firebase
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > $HOME/firebase.json
+      - name: Configurar credenciais do Firebase
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > $HOME/firebase.json
 
-      - name: Deploy to Firebase
-        run: |
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/firebase.json"
-          firebase deploy --non-interactive
+      - name: Exportar variável de ambiente
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase.json" >> $GITHUB_ENV
+
+      - name: Verificar autenticação Firebase
+        run: firebase projects:list
+
+      - name: Fazer deploy no Firebase
+        run: firebase deploy --only hosting
