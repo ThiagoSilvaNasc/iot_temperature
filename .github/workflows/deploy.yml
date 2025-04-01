@@ -12,11 +12,16 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      - name: Remove cached Node.js versions  
+        run: |
+          sudo rm -rf /opt/hostedtoolcache/node/*
+
       - name: Instalar Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20 # Updated Node.js version
-
+          cache: 'npm'  # Cache apenas para pacotes npm, não para o Node.js
+          
       - name: Instalar dependências
         run: npm install
 
