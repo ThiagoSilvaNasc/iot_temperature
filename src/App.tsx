@@ -58,7 +58,7 @@ function App() {
       {
         label: 'Tanque 1',
         data: tank1Data,
-        borderColor: 'rgb(75, 192, 192)',
+        borderColor: 'rgb(75, 192, 190)',
         backgroundColor: 'rgba(75, 192, 192, 0.5)',
         borderWidth: 1, // Linha mais fina
         pointRadius: 0, // Remove os pontos
