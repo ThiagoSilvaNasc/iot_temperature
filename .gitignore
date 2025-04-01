@@ -23,4 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 .env
-esp32-309d2-firebase-adminsdk-fbsvc-09ef1f1672.json
+firebase-service-account.json
