@@ -1,4 +1,4 @@
-name: Deploy para Firebase Hosting
+name: Deploy to Firebase
 
 on:
   push:
@@ -10,33 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checar código do repositório
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Configurar Node.js 20
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 18
 
-      - name: Verificar versão do Node.js
-        run: node -v
-
-      - name: Limpar cache do npm
-        run: npm cache clean --force
-
-      - name: Remover node_modules e package-lock.json
-        run: rm -rf node_modules package-lock.json
-
-      - name: Instalar dependências
-        run: npm install
-
-      - name: Instalar Firebase CLI globalmente
+      - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Construir o projeto
-        run: npm run build
+      - name: Authenticate with Firebase
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > $HOME/firebase.json
 
-      - name: Deploy para Firebase Hosting
-        run: npx firebase-tools deploy --only hosting --project esp32-309d2 --debug
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Deploy to Firebase
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/firebase.json"
+          firebase deploy --non-interactive
