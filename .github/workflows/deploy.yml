@@ -1,34 +1,35 @@
-name: Deploy Firebase
+name: Deploy Firebase Hosting
 
 on:
   push:
     branches:
-      - main  # Altere para a branch correta do seu projeto
+      - main
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 20  # Certifique-se de que a versão correta do Node está definida
+          node-version: 20 # Updated Node.js version
 
       - name: Instalar dependências
         run: npm install
 
-      - name: Configurar credenciais do Firebase
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > $HOME/firebase.json
+      - name: Fazer build do projeto
+        run: npm run build
 
-      - name: Exportar variável de ambiente
-        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase.json" >> $GITHUB_ENV
+      - name: Criar credencial Firebase
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}" > firebase-service-account.json
 
-      - name: Verificar autenticação Firebase
-        run: firebase projects:list
-
-      - name: Fazer deploy no Firebase
-        run: firebase deploy --only hosting
+      - name: Deploy no Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}
+          channelId: live
+          projectId: esp32-309d2
