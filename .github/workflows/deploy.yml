@@ -3,7 +3,7 @@ name: Deploy Firebase Hosting
 on:
   push:
     branches:
-      - main  # 🚀 Branch usada para deploy
+      - main
 
 jobs:
   build_and_deploy:
@@ -16,13 +16,16 @@ jobs:
       - name: Instalar Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18  # 🔹 Versão recomendada do Node.js
+          node-version: 18
 
       - name: Instalar dependências
-        run: npm install  # 🔹 Instala todas as dependências, incluindo o Vite
+        run: npm install
+
+      - name: Verificar se Vite está instalado
+        run: npm list vite
 
       - name: Fazer o build do projeto
-        run: npm run build  # 🔹 Gera os arquivos para deploy
+        run: npm run build
 
       - name: Instalar Firebase CLI
         run: npm install -g firebase-tools
