@@ -1,47 +1,50 @@
-name: Deploy Firebase Hosting
+name: Build and Deploy
 
 on:
   push:
     branches:
-      - main
+      - main  # Certifique-se de que esta é a branch correta
 
 jobs:
-  build_and_deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
+      - name: Checkout Repo
         uses: actions/checkout@v4
-
-      - name: Instalar Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
-      
-      - name: Instalar Firebase CLI
-        run: npm install -g firebase-tools
 
       - name: Instalar dependências
         run: npm install
 
-      - name: Criar e verificar conteúdo do .env
-        run: |
-          rm -f .env
-          touch .env
-          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env
-          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env
-          echo "VITE_FIREBASE_DATABASE_URL=${{ secrets.VITE_FIREBASE_DATABASE_URL }}" >> .env
-          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env
-          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env
-          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
-          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env
-          cat .env  # Verifica se os valores foram escritos corretamente
+      - name: Build do projeto
+        run: npm run build-prod
 
-      - name: Fazer build do projeto
-        run: npm run build
+      - name: Arquivar artefato de produção
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
 
-      - name: Criar credencial Firebase
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}" > firebase-service-account.json
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Baixar artefato
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Instalar Firebase CLI
+        run: npm install -g firebase-tools
 
       - name: Deploy no Firebase
-        run: firebase deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}"
+        uses: w9jds/firebase-action@v11
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
