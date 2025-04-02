@@ -1,22 +1,66 @@
-name: Deploy to Live Channel
+name: Deploy Firebase Hosting
 
 on:
   push:
     branches:
       - main
-    # Optionally configure to run only for specific files. For example:
-    # paths:
-    # - "website/**"
 
 jobs:
-  deploy_live_website:
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      # Add any build steps here. For example:
-      # - run: npm ci && npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Remove cached Node.js versions  
+        run: |
+          sudo rm -rf /opt/hostedtoolcache/node/*
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
         with:
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}"
-          projectId: esp32-309d2
-          channelId: live
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Instalar Firebase CLI
+        run: npm install -g firebase-tools
+      
+      - name: Autenticar no Firebase
+        run: |
+          echo "Autenticando com Firebase..."
+          firebase login:ci --token "${{ secrets.FIREBASE_TOKEN }}"
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Verificar se os secrets estão sendo carregados
+        run: |
+          if [ -z "${{ secrets.VITE_FIREBASE_API_KEY }}" ]; then
+            echo "❌ VITE_FIREBASE_API_KEY está vazio!"
+          else
+            echo "✅ VITE_FIREBASE_API_KEY foi carregado corretamente."
+          fi
+
+      - name: Criar arquivo .env
+        run: |
+          rm -f .env
+          touch .env
+          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env
+          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env
+          echo "VITE_FIREBASE_DATABASE_URL=${{ secrets.VITE_FIREBASE_DATABASE_URL }}" >> .env
+          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env
+          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env
+
+      - name: Verificar conteúdo do .env
+        run: cat .env
+
+      - name: Fazer build do projeto
+        run: npm run build
+
+      - name: Criar credencial Firebase
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}" > firebase-service-account.json
+
+      - name: Deploy no Firebase
+        run: firebase deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}"
