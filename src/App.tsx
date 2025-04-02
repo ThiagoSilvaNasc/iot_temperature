@@ -107,7 +107,7 @@ function App() {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-center mb-6">
             <Thermometer className="h-8 w-8 text-blue-500 mr-3" />
-            <h1 className="text-2xl font-bold text-gray-800">Monitor de Temperatura V2.0</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Monitor de Temperatura V2.1</h1>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
