@@ -24,8 +24,12 @@ jobs:
         run: npm run build
 
       - name: Criar credencial Firebase
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}" > firebase-service-account.json
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ESP32_309D2 }}' > firebase-service-account.json
 
+      - name: Definir permissões do JSON
+        run: chmod 600 firebase-service-account.json
+        
       - name: Deploy no Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
