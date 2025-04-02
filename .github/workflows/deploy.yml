@@ -25,6 +25,14 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
+      - name: Verificar se os secrets estão sendo carregados
+        run: |
+          if [ -z "${{ secrets.VITE_FIREBASE_API_KEY }}" ]; then
+            echo "❌ VITE_FIREBASE_API_KEY está vazio!"
+          else
+            echo "✅ VITE_FIREBASE_API_KEY foi carregado corretamente."
+          fi
+
       - name: Criar arquivo .env
         run: |
           rm -f .env  # Apaga qualquer versão antiga
